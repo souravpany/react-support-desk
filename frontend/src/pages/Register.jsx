@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { FaUser } from 'react-icons/fa'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { register } from '../features/auth/authSlice'
+
+import Spinner from '../components/Spinner'
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -11,6 +16,11 @@ function Register() {
       })
 
     const { name, email, password, password2 } = formData
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const { isLoading } = useSelector((state) => state.auth) // useSelector will help to bring any state value from redux/slice
 
     const onChange = (e) => {
         setFormData((prevState) => ({
@@ -30,8 +40,19 @@ function Register() {
                 email,
                 password,
             }
+            dispatch(register(userData)) 
+            .unwrap()
+            .then((user) => {
+              toast.success(`Registered new user - ${user.name}`)
+              navigate('/')
+            })
+            .catch(toast.error)
         }       
 }
+
+    if (isLoading) {
+      return <Spinner />
+    }
 
 
   return (
